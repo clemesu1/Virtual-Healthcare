@@ -6,6 +6,7 @@ pragma solidity >=0.4.22 <0.9.0;
 
 contract PatientRecord {
     uint256 public patientCount = 0;
+    mapping(uint => uint) public recordCount;
 
     struct Record {
         uint256 id;
@@ -17,7 +18,6 @@ contract PatientRecord {
         uint256 id;
         string name;
         string medicare;
-        uint256 recordCount;
         mapping(uint256 => Record) records;
     }
 
@@ -51,22 +51,14 @@ contract PatientRecord {
     function createPatient(string memory _name, string memory _medicare)
         public
     {
-        if (patientCount > 0) {
-            for (uint256 i = 0; i < patientCount; i++) {
-                if (
-                    keccak256(abi.encodePacked(patients[i].medicare)) !=
-                    keccak256(abi.encodePacked(_medicare))
-                ) {
-                    revert("Patient with that medicare number already exists.");
-                }
-            }
-        }
+        // TODO: Check if patient already exists (compare medicare #'s)
 
-        Patient storage p = patients[++patientCount];
+        patientCount++;
+        Patient storage p = patients[patientCount];
         p.id = patientCount;
         p.name = _name;
         p.medicare = _medicare;
-        p.recordCount = 0;
+        recordCount[patientCount] = 0;
         emit PatientCreated(patientCount, _name, _medicare, 0);
     }
 
@@ -85,11 +77,12 @@ contract PatientRecord {
         // TODO: switch from using id to medicare number for creating records.
         //		 **perhaps get ID via medicare number.
         Patient storage p = patients[_id];
-        Record storage r = p.records[++p.recordCount];
-        r.id = p.recordCount;
+        recordCount[_id]++;
+        Record storage r = p.records[recordCount[_id]];
+        r.id = recordCount[_id];
         r.title = _title;
         r.content = _content;
-        emit RecordCreated(_id, p.recordCount, _title, _content);
+        emit RecordCreated(_id, recordCount[_id], _title, _content);
     }
 
     /**
@@ -104,13 +97,15 @@ contract PatientRecord {
         returns (
             uint256,
             string memory,
-            string memory
+            string memory,
+            uint256
         )
     {
         return (
             patients[index].id,
             patients[index].name,
-            patients[index].medicare
+            patients[index].medicare,
+            recordCount[index]
         );
     }
 

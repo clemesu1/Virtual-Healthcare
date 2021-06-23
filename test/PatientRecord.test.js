@@ -16,17 +16,18 @@ contract('PatientRecord', (accounts) => {
     it('lists patients', async() => {
         const patientCount = await this.patientRecord.patientCount()
         const patient = await this.patientRecord.patients(patientCount)
+        const recordCount = await this.patientRecord.recordCount(patientCount);
+
         assert.equal(patient.id.toNumber(), patientCount.toNumber())
         assert.equal(patient.name, 'John Doe', "name is not equal")
         assert.equal(patient.medicare, '111111111', "medicare is not equal")
-        assert.equal(patient.recordCount.toNumber(), 1, "record count is not equal")
+        assert.equal(recordCount.toNumber(), 1, "record count is not equal")
         assert.equal(patientCount.toNumber(), 1, "patient count is not equal")
     })
 
     it('lists records', async() => {
         const patientCount = await this.patientRecord.patientCount()
-        const patient = await this.patientRecord.patients(patientCount)
-        const recordCount = await patient.recordCount
+        const recordCount = await this.patientRecord.recordCount(patientCount)
 
         // must call `getRecord` function from smart contract to get record data.
         const record = await this.patientRecord.getRecord(patientCount.toNumber(), recordCount.toNumber())
@@ -52,8 +53,7 @@ contract('PatientRecord', (accounts) => {
 
     it('creates records', async() => {
         const result = await this.patientRecord.createRecord(1, 'Title2', 'Content2')
-        const patient = await this.patientRecord.patients(1)
-        const recordCount = await patient.recordCount
+        const recordCount = await this.patientRecord.recordCount(1);
         assert.equal(recordCount, 2)
         const event = result.logs[0].args
         assert.equal(event.patientID.toNumber(), 1)

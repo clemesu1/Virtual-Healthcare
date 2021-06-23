@@ -1,0 +1,23 @@
+.patient {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.patient-side {
+    display: inline-block;
+    margin-right: 15px;
+    vertical-align: middle;
+}
+
+.record-section {
+    float: left;
+    text-align: center;
+}
+
+.patient-input {
+    width: 250px;
+}
+
+.section {
+    margin: 25px;
+}
