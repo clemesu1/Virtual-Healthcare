@@ -36,6 +36,10 @@ function ShowRecords({ drizzle, drizzleState }) {
 				Record List:
 			</Typography>
 
+			<Typography variant="body1" gutterBottom>
+				Enter a Patient ID:
+			</Typography>
+
 			<FormControl variant="outlined">
 				<InputLabel id="select-label">ID</InputLabel>
 				<Select
@@ -51,7 +55,9 @@ function ShowRecords({ drizzle, drizzleState }) {
 					))}
 				</Select>
 			</FormControl>
-			{showSection ? <GetRecordCount patientID={patientID} drizzle={drizzle} drizzleState={drizzleState} /> : null}
+			<div className="patient">
+				{showSection ? <GetRecordCount patientID={patientID} drizzle={drizzle} drizzleState={drizzleState} /> : null}
+			</div>
 		</Container >
 	);
 }
@@ -69,7 +75,6 @@ function GetRecordCount({ patientID, drizzle, drizzleState }) {
 	const storedData = PatientRecord.recordCount[dataKey];
 	const recordCount = (storedData && storedData.value);
 	return <GetRecords recordCount={recordCount} patientID={patientID} drizzle={drizzle} drizzleState={drizzleState} />
-
 }
 
 function GetRecords({ recordCount, patientID, drizzle, drizzleState }) {

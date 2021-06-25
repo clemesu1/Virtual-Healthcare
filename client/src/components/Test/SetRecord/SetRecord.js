@@ -80,7 +80,7 @@ function SetRecord({ drizzle, drizzleState }) {
 
 const useStyles = makeStyles({
 	root: {
-		minWidth: 275,
+		width: '25%',
 	},
 	bullet: {
 		display: 'inline-block',
@@ -156,7 +156,7 @@ function Section({ patientID, drizzle, drizzleState }) {
 	}
 
 	return (
-		<Card width={1 / 4} className={classes.root} variant="outlined">
+		<Card className={classes.root} variant="outlined">
 			<CardContent>
 				<Typography variant="h6" className={classes.title} gutterBottom>
 					Create a Record for Patient ID: {patientID}

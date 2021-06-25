@@ -1,5 +1,20 @@
-.App {
-    margin: 25px;
+.link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.breadcrumbs-link {
+    color: inherit;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.breadcrumbs-link:hover {
+    text-decoration: underline;
+}
+
+.calendar {
+    text-align: center;
 }
 
 

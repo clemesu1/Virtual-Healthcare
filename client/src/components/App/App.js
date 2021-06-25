@@ -3,6 +3,7 @@ import { Drizzle, generateStore } from "@drizzle/store";
 import { DrizzleContext } from "@drizzle/react-plugin";
 import options from "../../drizzleOptions";
 import Test from "../Test/Test";
+import Home from "../Home/Home";
 import './App.css';
 
 const drizzleStore = generateStore(options);
@@ -21,7 +22,7 @@ function App() {
 
           return (
             <div className="App">
-              <Test drizzle={drizzle} drizzleState={drizzleState} />
+              <Home drizzle={drizzle} drizzleState={drizzleState} />
             </div>
           );
         }}
