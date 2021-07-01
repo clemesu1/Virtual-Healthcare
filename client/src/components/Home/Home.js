@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import { CssBaseline, Drawer, Box, AppBar, Toolbar, List, Typography, Divider, IconButton, Container } from '@material-ui/core';
@@ -90,6 +90,15 @@ const useStyles = makeStyles((theme) => ({
 function Home({ drizzle, drizzleState }) {
 	const classes = useStyles();
 	const [open, setOpen] = useState(true);
+	const [dataKey, setDataKey] = useState(null);
+	const { PatientRecord } = drizzleState.contracts;
+
+	useEffect(() => {
+		const contract = drizzle.contracts.PatientRecord;
+		const dataKey = contract.methods["patientCount"].cacheCall();
+		setDataKey(dataKey);
+	}, [dataKey, drizzle.contracts.PatientRecord]);
+
 
 	const handleDrawerOpen = () => {
 		setOpen(true);
@@ -98,6 +107,9 @@ function Home({ drizzle, drizzleState }) {
 	const handleDrawerClose = () => {
 		setOpen(false);
 	};
+
+	const storedData = PatientRecord.patientCount[dataKey];
+	const patientCount = (storedData && storedData.value);
 
 	return (
 		<div className={classes.root}>
@@ -142,10 +154,10 @@ function Home({ drizzle, drizzleState }) {
 				<Container maxWidth="xl" className={classes.container}>
 					<Switch>
 						<Route exact path="/">
-							<Dashboard drizzle={drizzle} drizzleState={drizzleState}/>
+							<Dashboard drizzle={drizzle} drizzleState={drizzleState} patientCount={patientCount} />
 						</Route>
 						<Route path="/patients">
-							<Patients drizzle={drizzle} drizzleState={drizzleState} />
+							<Patients drizzle={drizzle} drizzleState={drizzleState} patientCount={patientCount} />
 						</Route>
 						<Route path="/calendar">
 							<Calendar />

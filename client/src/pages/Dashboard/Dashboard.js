@@ -16,20 +16,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-function Dashboard({ drizzle, drizzleState }) {
+function Dashboard({ drizzle, drizzleState, patientCount }) {
 	const classes = useStyles();
 	const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
-	const [dataKey, setDataKey] = useState(null);
-	const { PatientRecord } = drizzleState.contracts;
 
-	useEffect(() => {
-		const contract = drizzle.contracts.PatientRecord;
-		const dataKey = contract.methods["patientCount"].cacheCall();
-		setDataKey(dataKey);
-	}, [dataKey, drizzle.contracts.PatientRecord]);
-
-	const storedData = PatientRecord.patientCount[dataKey];
-	const patientCount = (storedData && storedData.value);
 	return (
 		<div>
 

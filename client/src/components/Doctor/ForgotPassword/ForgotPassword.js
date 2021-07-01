@@ -58,7 +58,7 @@ function ForgotPassword({ drizzle, drizzleState, handleSignIn }) {
 					<Typography component="h1" variant="h5">
 						Forgot Password
 					</Typography>
-					<form className={classes.form} noValidate>
+					<div className={classes.form} noValidate>
 						<Typography component="h2" variant="body1" color="textSecondary">
 							Lost your password? Please enter your email address. You will receive a link to create a new password via email.
 						</Typography>
@@ -90,7 +90,7 @@ function ForgotPassword({ drizzle, drizzleState, handleSignIn }) {
 								</Link>
 							</Grid>
 						</Grid>
-					</form>
+					</div>
 				</div>
 				<Box mt={8}>
 					<Copyright />

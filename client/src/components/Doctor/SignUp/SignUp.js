@@ -150,7 +150,7 @@ function SignUp({ drizzle, drizzleState, handleSignIn }) {
 						Sign up
 					</Typography>
 				</div>
-				<form className={classes.form} onSubmit={handleSubmit}>
+				<div className={classes.form} >
 					<Grid container spacing={2}>
 						<Grid item xs={12} sm={6}>
 							<TextField
@@ -249,7 +249,7 @@ function SignUp({ drizzle, drizzleState, handleSignIn }) {
 						</Grid>
 					</Grid>
 					<div>{getTxStatus()}</div>
-				</form>
+				</div>
 				<Box mt={5}>
 					<Copyright />
 				</Box>

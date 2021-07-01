@@ -76,7 +76,7 @@ export default function SignIn({ setToken, drizzle, drizzleState }) {
 		setDataKey(dataKey);
 	}, [dataKey, drizzle.contracts.PatientRecord]);
 
-	const handleSignIn = async e => {
+	const handleSignIn = e => {
 		e.preventDefault();
 
 		const email = state.email;

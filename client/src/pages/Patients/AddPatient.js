@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
-	Container, CssBaseline, Avatar, Typography, Grid, TextField, FormControl, Select, MenuItem, InputLabel,
-	Paper, Stepper, Step, StepLabel, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
+	Container, Avatar, Typography, Grid, TextField, FormControl, Select, MenuItem, InputLabel,
+	Stepper, Step, StepLabel, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
 } from '@material-ui/core';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import PersonOutlineIcon from '@material-ui/icons/PersonOutline';
@@ -69,14 +69,72 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 		lastName: "",
 		medicare: "",
 		gender: "",
+		dateOfBirth: "",
+		phone: "",
 		address: "",
 		city: "",
 		province: "",
 		postalCode: "",
 		country: "",
 	});
-
 	const [phone, setPhone] = useState('');
+	const [errorMessage, setErrorMessage] = useState({});
+
+	const validate = () => {
+		let temp = { ...errorMessage };
+
+		if ('email' in state)
+			temp.email = (/$^|.+@.+..+/.test(state.email)
+				? ''
+				: 'Email is not valid')
+				|| (state.email ? '' : 'This field is required');
+		if ('password' in state)
+			if (state.password.length !== 0) {
+				if (state.password === state.confirmPassword) {
+					temp.password = '';
+				} else {
+					temp.password = 'Passwords do not match'
+				}
+			} else {
+				temp.password = 'This field is required'
+			}
+		if ('confirmPassword' in state)
+			if (state.confirmPassword.length !== 0) {
+				if (state.password === state.confirmPassword) {
+					temp.confirmPassword = '';
+				} else {
+					temp.confirmPassword = 'Passwords do not match'
+				}
+			} else {
+				temp.confirmPassword = 'This field is required'
+			}
+
+		if ('firstName' in state)
+			temp.firstName = state.firstName ? '' : 'This field is required';
+		if ('lastName' in state)
+			temp.lastName = state.lastName ? '' : 'This field is required';
+		if ('medicare' in state)
+			temp.medicare = state.medicare ? '' : 'This field is required';
+		if ('gender' in state)
+			temp.gender = state.gender ? '' : 'This field is required';
+		if ('dateOfBirth' in state)
+			temp.dateOfBirth = dateOfBirth ? '' : 'This field is required';
+		if ('phone' in state)
+			temp.phone = phone ? '' : 'This field is required';
+		if ('address' in state)
+			temp.address = state.address ? '' : 'This field is required';
+		if ('city' in state)
+			temp.city = state.city ? '' : 'This field is required';
+		if ('province' in state)
+			temp.province = state.province ? '' : 'This field is required';
+		if ('postalCode' in state)
+			temp.postalCode = state.postalCode ? '' : 'This field is required';
+		if ('country' in state)
+			temp.country = state.country ? '' : 'This field is required';
+		setErrorMessage({ ...temp })
+
+		if (state) return Object.values(temp).every((x) => x === '');
+	}
 
 	function handleChange(e) {
 		setState({
@@ -94,57 +152,66 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 	}
 
 	function handleSubmit(e) {
-		// email: "",
-		// password: "",
-		// confirmPassword: "",
-		// firstName: "",
-		// lastName: "",
-		// medicare: "",
-		// gender: "",
-		// phone: phone,
-		// dateOfBirth: dateOfBirth.toLocaleString().split(',')[0],
-		// address: "",
-		// city: "",
-		// province: "",
-		// postalCode: "",
-		// country: "",
-		const email = state.email;
-		const password = state.password;
-		const name = state.firstName + " " + state.lastName;
-		const medicare = state.medicare;
-		const gender = state.gender;
-		const mailAddress = [
-			{
-				streetAddress: state.address,
-				city: state.city,
-				province: state.province,
-				postalCode: state.postalCode,
-				country: state.country
-			}
-		]
+		if (validate()) {
+			e.preventDefault();
+			const email = state.email;
+			const password = state.password;
+			const name = state.firstName + " " + state.lastName;
+			const medicare = state.medicare;
+			const gender = state.gender;
+			const mailAddress = [
+				{
+					streetAddress: state.address,
+					city: state.city,
+					province: state.province,
+					postalCode: state.postalCode,
+					country: state.country
+				}
+			]
 
-		const contract = drizzle.contracts.PatientRecord;
+			const contract = drizzle.contracts.PatientRecord;
 
-		const patientObject = {
-			email: email,
-			password: password,
-			name: name,
-			medicare: medicare,
-			gender: gender,
-			dateOfBirth: dateOfBirth.toLocaleString().split(',')[0],
-			phone: phone,
-			mailAddress: mailAddress
-		};
+			const patientObject = {
+				email: email,
+				password: password,
+				name: name,
+				medicare: medicare,
+				gender: gender,
+				dateOfBirth: dateOfBirth.toLocaleString().split(',')[0],
+				phone: phone,
+				mailAddress: mailAddress
+			};
 
-		const patientJSON = JSON.stringify(patientObject);
+			const patientJSON = JSON.stringify(patientObject);
 
-		// let drizzle know we want to call the `createPatient` method with `patientJSON` and `medicare`
-		const stackId = contract.methods["createPatient"].cacheSend(patientJSON, medicare,
-			{ from: drizzleState.accounts[0], gas: 3000000 }
-		);
+			// let drizzle know we want to call the `createPatient` method with `patientJSON` and `medicare`
+			const stackId = contract.methods["createPatient"].cacheSend(patientJSON, medicare,
+				{ from: drizzleState.accounts[0], gas: 3000000 }
+			);
 
-		// save the `stackId` for later reference
-		setStackID(stackId);
+			// save the `stackId` for later reference
+			setStackID(stackId);
+
+			setState({
+				email: "",
+				password: "",
+				confirmPassword: "",
+				firstName: "",
+				lastName: "",
+				medicare: "",
+				gender: "",
+				dateOfBirth: "",
+				phone: "",
+				address: "",
+				city: "",
+				province: "",
+				postalCode: "",
+				country: "",
+			})
+
+			setPhone(null)
+			setDateOfBirth(null);
+		}
 	}
 
 	function getTxStatus() {
@@ -286,7 +353,8 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 										autoComplete="email"
 										value={state.email}
 										onChange={handleChange}
-										autoFocus
+										error={!!errorMessage.email}
+
 									/>
 								</Grid>
 
@@ -302,6 +370,8 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 										autoComplete="current-password"
 										value={state.password}
 										onChange={handleChange}
+										error={!!errorMessage.password}
+
 									/>
 								</Grid>
 
@@ -317,7 +387,8 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 										autoComplete="current-password"
 										value={state.confirmPassword}
 										onChange={handleChange}
-										error={state.confirmPassword !== "" && state.password !== state.confirmPassword}
+										error={!!errorMessage.confirmPassword}
+
 									/>
 								</Grid>
 							</Grid>
@@ -350,6 +421,7 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 										autoComplete="given-name"
 										value={state.firstName}
 										onChange={handleChange}
+										error={!!errorMessage.firstName}
 									/>
 								</Grid>
 
@@ -364,6 +436,7 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 										autoComplete="family-name"
 										value={state.lastName}
 										onChange={handleChange}
+										error={!!errorMessage.lastName}
 									/>
 								</Grid>
 
@@ -382,6 +455,7 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 										onInput={(e) => {
 											e.target.value = Math.max(0, parseInt(e.target.value)).toString().slice(0, 9)
 										}}
+										error={!!errorMessage.medicare}
 									/>
 								</Grid>
 
@@ -396,6 +470,7 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 											autoComplete="sex"
 											value={state.gender}
 											onChange={handleChange}
+											error={!!errorMessage.gender}
 										>
 											<MenuItem value='Male'>Male</MenuItem>
 											<MenuItem value='Female'>Female</MenuItem>
@@ -415,7 +490,7 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 											label="Date of Birth"
 											value={dateOfBirth}
 											onChange={handleDateChange}
-
+											error={!!errorMessage.dateOfBirth}
 											KeyboardButtonProps={{
 												'aria-label': 'change date',
 											}}
@@ -455,6 +530,8 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 											autoComplete="tel"
 											value={phone}
 											onChange={handlePhoneChange}
+											error={!!errorMessage.phone}
+
 										/>
 									</Grid>
 
@@ -469,6 +546,7 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 											autoComplete="shipping street-address"
 											value={state.address}
 											onChange={handleChange}
+											error={!!errorMessage.address}
 										/>
 									</Grid>
 
@@ -483,6 +561,7 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 											autoComplete="shipping locality"
 											value={state.city}
 											onChange={handleChange}
+											error={!!errorMessage.city}
 										/>
 									</Grid>
 
@@ -497,6 +576,7 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 											autoComplete="shipping region"
 											value={state.province}
 											onChange={handleChange}
+											error={!!errorMessage.province}
 										/>
 									</Grid>
 
@@ -511,6 +591,7 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 											autoComplete="shipping postal-code"
 											value={state.postalCode}
 											onChange={handleChange}
+											error={!!errorMessage.postalCode}
 										/>
 									</Grid>
 									<Grid item xs={12} sm={6}>
@@ -524,6 +605,7 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 											autoComplete="shipping country-name"
 											value={state.country}
 											onChange={handleChange}
+
 										/>
 									</Grid>
 								</Grid>
@@ -538,14 +620,8 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 	}
 
 	const handleNext = () => {
-		const { password, confirmPassword } = state;
-		if (password !== confirmPassword) {
-			alert("Passwords do not match.")
-		} else if (password === '' || confirmPassword === '') {
-			alert("Input fields are empty.")
-		} else {
-			setActiveStep(activeStep + 1);
-		}
+		setActiveStep(activeStep + 1);
+
 	};
 
 	const handleBack = () => {

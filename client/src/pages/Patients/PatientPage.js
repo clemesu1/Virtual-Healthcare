@@ -48,7 +48,7 @@ function PatientPage({ id, name, drizzle, drizzleState }) {
 	const fixedHeightPaper = clsx(classes.section, classes.fixedHeight);
 
 	const [patient, setPatient] = useState([])
-	const [open, setOpen] = React.useState(false);
+	const [open, setOpen] = useState(false);
 
 
 	useEffect(() => {
