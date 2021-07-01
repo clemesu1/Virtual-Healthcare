@@ -6,7 +6,7 @@ pragma solidity >=0.4.22 <0.9.0;
 
 contract PatientRecord {
     uint256 public patientCount = 0;
-    mapping(uint => uint) public recordCount;
+    mapping(uint256 => uint256) public recordCount;
 
     struct Record {
         uint256 id;
@@ -16,19 +16,15 @@ contract PatientRecord {
 
     struct Patient {
         uint256 id;
-        string name;
-        string medicare;
+        string patient;
+        uint256 key;
         mapping(uint256 => Record) records;
     }
-
     mapping(uint256 => Patient) public patients;
+    uint256[] private patientIndex;
 
-    event PatientCreated(
-        uint256 id,
-        string name,
-        string medicare,
-        uint256 recordCount
-    );
+    event PatientCreated(uint256 id, string patient, uint256 recordCount);
+
     event RecordCreated(
         uint256 patientID,
         uint256 recordID,
@@ -36,30 +32,34 @@ contract PatientRecord {
         string content
     );
 
-    constructor() public {
-        createPatient("John Doe", "111111111");
-        createRecord(1, "Title", "Content");
+    /**
+     * Method to check if a patient already exisits in the blockchain
+     *
+     * @param key   the patients medicare number used as a key
+     */
+    function isPatient(uint256 key) public view returns (bool isIndeed) {
+        if (patientIndex.length == 0) return false;
+        for (uint256 i = 0; i < patientIndex.length; i++) {
+            if (patientIndex[i] == key) return true;
+        }
+        return false;
     }
 
     /**
-     * Creates a patient with an ID, name, and medicare number,
-     * and initializes the record count of the patient to 0.
-     *
-     * @param _name       the name of the patient
-     * @param _medicare   the medicare number of patient
+     * Create and store a patient's infomation in the blockchain
+     * 
+     * @param _patient   the patients information
+     * @param key        the patients medicare number used as a key
      */
-    function createPatient(string memory _name, string memory _medicare)
-        public
-    {
-        // TODO: Check if patient already exists (compare medicare #'s)
-
+    function createPatient(string memory _patient, uint256 key) public {
+        if(isPatient(key)) revert(); 
         patientCount++;
         Patient storage p = patients[patientCount];
         p.id = patientCount;
-        p.name = _name;
-        p.medicare = _medicare;
+        p.patient = _patient;
         recordCount[patientCount] = 0;
-        emit PatientCreated(patientCount, _name, _medicare, 0);
+        patientIndex.push(key);
+        emit PatientCreated(patientCount, _patient, 0);
     }
 
     /**
@@ -89,7 +89,7 @@ contract PatientRecord {
      * Returns a patient using their ID number as the index.
      *
      * @param index the index for the requested patient
-     * @return      the object containing requested patient's data
+     * @return      an object containing requested patient's data
      */
     function getPatient(uint256 index)
         public
@@ -97,16 +97,11 @@ contract PatientRecord {
         returns (
             uint256,
             string memory,
-            string memory,
             uint256
         )
     {
-        return (
-            patients[index].id,
-            patients[index].name,
-            patients[index].medicare,
-            recordCount[index]
-        );
+        Patient storage p = patients[index];
+        return (p.id, p.patient, recordCount[index]);
     }
 
     /**

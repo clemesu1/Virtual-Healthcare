@@ -11,6 +11,7 @@ import {
 	useRouteMatch,
 } from "react-router-dom";
 import PatientPage from './PatientPage';
+import AddPatient from './AddPatient';
 
 const useStyles = makeStyles((theme) => ({
 	button: {
@@ -68,7 +69,7 @@ function Patients({ drizzle, drizzleState }) {
 						</Grid>
 					</Grid>
 					<PatientTable setSelectedPatient={setSelectedPatient} patientCount={patientCount} drizzle={drizzle} drizzleState={drizzleState} />
-					<AddPatientDialog open={open} handleClose={handleClose} drizzle={drizzle} drizzleState={drizzleState} />
+					<AddPatient open={open} handleClose={handleClose} drizzle={drizzle} drizzleState={drizzleState} />
 				</Route>
 				<Route exact path={`${match.path}/${selectedPatient.id}`}>
 					<PatientPage id={selectedPatient.id} name={selectedPatient.name} drizzle={drizzle} drizzleState={drizzleState} />
@@ -147,11 +148,13 @@ function PatientTable({  setSelectedPatient, patientCount, drizzle, drizzleState
 			const storedData = PatientRecord.getPatient[dataKey];
 			const patient = (storedData && storedData.value);
 			if (patient) {
-				const { 0: patientID, 1: patientName, 2: patientMedicare } = patient;
+				const { 0: patientID, 1: patientJSON } = patient;
+				const patientObject = JSON.parse(patientJSON);
+
 				patients.push({
 					id: patientID,
-					name: patientName,
-					medicare: patientMedicare
+					name: patientObject.name,
+					medicare: patientObject.medicare,
 				});
 				setPatients(patients);
 			}
@@ -177,93 +180,6 @@ function PatientTable({  setSelectedPatient, patientCount, drizzle, drizzleState
 			</div>
 		</Box>
 	);
-}
-
-
-function AddPatientDialog({ open, handleClose, drizzle, drizzleState }) {
-	const [stackId, setStackID] = useState(null);
-	const [state, setState] = useState({
-		name: '',
-		medicare: ''
-	});
-
-	function handleSubmit() {
-		handleClose();
-		const name = state.name;
-		const medicare = state.medicare;
-
-		const contract = drizzle.contracts.PatientRecord;
-
-		// let drizzle know we want to call the `createPatient` method with `name` and `medicare`
-		const stackId = contract.methods["createPatient"].cacheSend(name, medicare, {
-			from: drizzleState.accounts[0], gas: 3000000
-		});
-
-		// save the `stackId` for later reference
-		setStackID(stackId);
-	}
-
-	function getTxStatus() {
-		// get the transaction states from the drizzle state
-		const { transactions, transactionStack } = drizzleState
-
-		// get the transaction hash using our saved `stackId`
-		const txHash = transactionStack[stackId]
-
-		// if transaction hash does not exist, don't display anything
-		if (!txHash) return null;
-
-		// otherwise, return the transaction status
-		return `Transaction status: ${transactions[txHash] && transactions[txHash].status}`
-	}
-
-
-	function handleChange(e) {
-		setState({
-			...state,
-			[e.target.name]: e.target.value
-		});
-	}
-
-
-	return (
-		<Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-			<DialogTitle id="form-dialog-title">Add Patient</DialogTitle>
-			<DialogContent>
-				<DialogContentText>
-					To add a patient to the system, please enter their name and medicare number here.
-				</DialogContentText>
-				<TextField
-					name="name"
-					autoFocus
-					margin="dense"
-					label="Patient Name"
-					fullWidth
-					value={state.name}
-					onChange={handleChange}
-				/>
-				<TextField
-					name="medicare"
-					margin="dense"
-					label="Patient Medicare Number"
-					fullWidth
-					value={state.medicare}
-					onChange={handleChange}
-				/>
-			</DialogContent>
-			<DialogActions>
-				<Button onClick={handleClose} color="primary">
-					Cancel
-				</Button>
-				<Button onClick={handleSubmit} color="primary">
-					Submit
-				</Button>
-			</DialogActions>
-			<Typography variant="body2">
-				{getTxStatus()}
-			</Typography>
-		</Dialog>
-	)
 }
 
 export default Patients;

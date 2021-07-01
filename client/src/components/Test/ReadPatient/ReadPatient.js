@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Typography, TextField } from '@material-ui/core';
-import ReadRecord from '../ReadRecord/ReadRecord';
 
 function ReadPatient({ drizzle, drizzleState }) {
 	const [dataKey, setDataKey] = useState(null);

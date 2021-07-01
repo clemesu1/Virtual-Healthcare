@@ -33,7 +33,6 @@ export default function DiagnosisList({ patientID, drizzle, drizzleState }) {
 
 function RetrieveRecords({ recordCount, patientID, drizzle, drizzleState }) {
 	const [records, updateRecords] = useState([]);
-	const [dataKey, setDataKey] = useState(null);
 	const [open, setOpen] = useState(false);
 	const { PatientRecord } = drizzleState.contracts;
 	const [selectedRecord, setSelectedRecord] = useState({
