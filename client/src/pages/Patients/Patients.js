@@ -36,6 +36,7 @@ function Patients({ drizzle, drizzleState, patientCount }) {
 
 	function PatientTable({ patientCount }) {
 		const [patients, setPatients] = useState([]);
+		const [dataKey, setDataKey] = useState(null);
 
 		useEffect(() => {
 			const contract = drizzle.contracts.PatientRecord;
@@ -45,6 +46,7 @@ function Patients({ drizzle, drizzleState, patientCount }) {
 			if (patientCount) {
 				for (let i = 1;i <= patientCount;i++) {
 					const dataKey = contract.methods["getPatient"].cacheCall(i)
+					setDataKey(dataKey);
 					const storedData = PatientRecord.getPatient[dataKey];
 					const patient = (storedData && storedData.value);
 					if (patient) {
@@ -61,7 +63,7 @@ function Patients({ drizzle, drizzleState, patientCount }) {
 				}
 			}
 
-		}, [patientCount, drizzle.contracts.PatientRecord]);
+		}, [dataKey, drizzle.contracts.PatientRecord]);
 
 		const columns = [
 			{

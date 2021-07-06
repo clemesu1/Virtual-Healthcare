@@ -88,10 +88,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Dashboard({ drizzle, drizzleState }) {
+	const { PatientRecord } = drizzleState.contracts;
 	const classes = useStyles();
 	const [open, setOpen] = useState(true);
 	const [dataKey, setDataKey] = useState(null);
-	const { PatientRecord } = drizzleState.contracts;
 	const { user, isAuthenticated } = useAuth0();
 
 	useEffect(() => {

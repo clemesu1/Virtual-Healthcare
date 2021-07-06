@@ -13,6 +13,11 @@ const drizzle = new Drizzle(options, drizzleStore);
 function App() {
   const { isLoading } = useAuth0();
 
+        
+  if (isLoading) {
+    return "Loading...";
+  }
+  
 
   return (
     <Router>
@@ -21,9 +26,12 @@ function App() {
           {drizzleContext => {
             const { drizzle, drizzleState, initialized } = drizzleContext;
 
-            if (!initialized && isLoading) {
+         
+
+            if (!initialized) {
               return "Loading...";
             }
+      
             
             return (
               <>
