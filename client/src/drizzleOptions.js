@@ -1,11 +1,9 @@
 import PatientRecord from "./contracts/PatientRecord.json";
-import DoctorStorage from "./contracts/DoctorStorage.json";
 
 const options = {
-    contracts: [PatientRecord, DoctorStorage],
+    contracts: [PatientRecord],
     events: {
         PatientRecord: ['PatientCreated', 'RecordCreated'],
-        DoctorStorage: ['DoctorCreated'],
     },
     web3: {
         fallback: {

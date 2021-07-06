@@ -8,7 +8,7 @@ import {
 } from '@material-ui/core';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 
-import Copyright from '../Copyright/Copyright';
+import Copyright from '../../Copyright/Copyright';
 
 import { Link } from "react-router-dom";
 
@@ -93,7 +93,7 @@ export default function SignIn({ setToken, drizzle, drizzleState }) {
 			const patient = PatientRecord.getPatient[dataKey];
 
 			if (patient) {
-				const { 1: patientJSON } = (patient && patient?.value);
+				const { 0: patientID, 1: patientJSON } = (patient && patient?.value);
 
 				const patientObject = JSON.parse(patientJSON);
 

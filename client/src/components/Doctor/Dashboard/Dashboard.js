@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
-import { CssBaseline, Drawer, Box, AppBar, Toolbar, List, Typography, Divider, IconButton, Container } from '@material-ui/core';
+import { Avatar, CssBaseline, Drawer, Box, AppBar, Toolbar, List, Typography, Divider, IconButton, Container } from '@material-ui/core';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import MenuIcon from '@material-ui/icons/Menu';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import { mainListItems, secondaryListItems } from './listItems';
-import {
-	Switch,
-	Route
-} from "react-router-dom";
-import Dashboard from '../../pages/Dashboard/Dashboard'
-import Patients from '../../pages/Patients/Patients'
-import Calendar from '../../pages/Calendar/Calendar'
-import Copyright from '../Copyright/Copyright';
+import { Switch, Route } from "react-router-dom";
+import Copyright from '../../Copyright/Copyright';
+import { useAuth0 } from '@auth0/auth0-react';
+
+import Home from '../../../pages/Home/Home';
+import Patients from '../../../pages/Patients/Patients';
+import Calendar from '../../../pages/Calendar/Calendar';
+import Settings from '../../../pages/Settings/Settings';
+
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
@@ -87,11 +87,12 @@ const useStyles = makeStyles((theme) => ({
 	}
 }));
 
-function Home({ drizzle, drizzleState }) {
+export default function Dashboard({ drizzle, drizzleState }) {
 	const classes = useStyles();
 	const [open, setOpen] = useState(true);
 	const [dataKey, setDataKey] = useState(null);
 	const { PatientRecord } = drizzleState.contracts;
+	const { user, isAuthenticated } = useAuth0();
 
 	useEffect(() => {
 		const contract = drizzle.contracts.PatientRecord;
@@ -112,6 +113,7 @@ function Home({ drizzle, drizzleState }) {
 	const patientCount = (storedData && storedData.value);
 
 	return (
+		isAuthenticated && (
 		<div className={classes.root}>
 			<CssBaseline />
 			<AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
@@ -129,7 +131,7 @@ function Home({ drizzle, drizzleState }) {
 						Virtual Healthcare
 					</Typography>
 					<IconButton color="inherit">
-						<AccountCircleIcon />
+						<Avatar alt={user.name} src={user.picture} />
 					</IconButton>
 				</Toolbar>
 			</AppBar>
@@ -154,13 +156,16 @@ function Home({ drizzle, drizzleState }) {
 				<Container maxWidth="xl" className={classes.container}>
 					<Switch>
 						<Route exact path="/">
-							<Dashboard drizzle={drizzle} drizzleState={drizzleState} patientCount={patientCount} />
+							<Home drizzle={drizzle} drizzleState={drizzleState} patientCount={patientCount} />
 						</Route>
 						<Route path="/patients">
 							<Patients drizzle={drizzle} drizzleState={drizzleState} patientCount={patientCount} />
 						</Route>
 						<Route path="/calendar">
 							<Calendar />
+						</Route>
+						<Route path="/settings">
+							<Settings />
 						</Route>
 					</Switch>
 
@@ -170,8 +175,7 @@ function Home({ drizzle, drizzleState }) {
 				</Box>
 			</main>
 		</div>
-
+		)
 	)
 }
 
-export default Home;

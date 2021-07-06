@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 
-import SignUp from '../Doctor/SignUp/SignUp';
-import SignIn from '../Doctor/SignIn/SignIn';
-import ForgotPassword from '../Doctor/ForgotPassword/ForgotPassword';
-import Home from '../Home/Home';
+import SignUp from '../../Doctor/Account/SignUp';
+import SignIn from '../../Doctor/Account/SignIn';
+import ForgotPassword from '../../Doctor/Account/ForgotPassword';
+import Dashboard from '../../Doctor/Dashboard/Dashboard'
 import useToken from './useToken';
 
-function Main({ drizzle, drizzleState }) {
+export default function Main({ drizzle, drizzleState }) {
 	const { token, setToken } = useToken();
 	const [showSignIn, setShowSignIn] = useState(true);
 	const [showSignUp, setShowSignUp] = useState(false);
@@ -29,7 +29,7 @@ function Main({ drizzle, drizzleState }) {
 		setShowForgotPassword(true);
 	}
 
-	function DoctorPage() {
+	function OpenPage() {
 		if (!token) {
 			if (showSignIn) {
 				return <SignIn setToken={setToken} drizzle={drizzle} drizzleState={drizzleState} handleForgotPassword={handleForgotPassword} handleSignUp={handleSignUp} />
@@ -44,13 +44,10 @@ function Main({ drizzle, drizzleState }) {
 				return null
 			}
 		} else {
-			return <Home drizzle={drizzle} drizzleState={drizzleState} />
+			return <Dashboard drizzle={drizzle} drizzleState={drizzleState} />
 		}
 	}
 
-	return (
-		<DoctorPage />
-	)
+	return <OpenPage />
 }
 
-export default Main

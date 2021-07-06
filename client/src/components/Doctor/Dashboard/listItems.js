@@ -6,9 +6,9 @@ import PeopleIcon from '@material-ui/icons/People';
 import CalendarTodayIcon from '@material-ui/icons/CalendarToday';
 import SettingsIcon from '@material-ui/icons/Settings';
 import HelpIcon from '@material-ui/icons/Help';
-import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
 import { Link } from "react-router-dom";
-import '../App/App.css';
+import '../../../styles/App.css';
+import LogoutButton from './LogoutButton';
 
 export const mainListItems = (
 	<div>
@@ -59,13 +59,7 @@ export const mainListItems = (
 	</div>
 );
 
+
 export const secondaryListItems = (
-	<div>
-		<ListItem button >
-			<ListItemIcon>
-				<PowerSettingsNewIcon />
-			</ListItemIcon>
-			<ListItemText primary="Log Out" />
-		</ListItem>
-	</div>
+	<LogoutButton />
 );

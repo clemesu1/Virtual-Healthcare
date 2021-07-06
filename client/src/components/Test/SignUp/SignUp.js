@@ -11,7 +11,7 @@ import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import DateFnsUtils from '@date-io/date-fns';
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
 import MuiPhoneInput from 'material-ui-phone-number';
-import Copyright from '../Copyright/Copyright';
+import Copyright from '../../Copyright/Copyright';
 import './SignUp.css';
 
 import {

@@ -1,17 +1,19 @@
 import React from "react";
 import { Drizzle, generateStore } from "@drizzle/store";
 import { DrizzleContext } from "@drizzle/react-plugin";
-import options from '../../drizzleOptions';
-import Home from "../Home/Home";
-import Main from "../Main/Main";
-import './App.css';
-
+import options from '../../drizzleOptions'
+import Dashboard from "../Doctor/Dashboard/Dashboard";
 import { BrowserRouter as Router } from "react-router-dom";
+import { useAuth0 } from '@auth0/auth0-react';
+import LoginButton from "./LoginButton";
 
 const drizzleStore = generateStore(options);
 const drizzle = new Drizzle(options, drizzleStore);
 
 function App() {
+  const { isLoading } = useAuth0();
+
+
   return (
     <Router>
       <DrizzleContext.Provider drizzle={drizzle}>
@@ -19,14 +21,15 @@ function App() {
           {drizzleContext => {
             const { drizzle, drizzleState, initialized } = drizzleContext;
 
-            if (!initialized) {
+            if (!initialized && isLoading) {
               return "Loading...";
             }
-
+            
             return (
-              <div>
-                <Main drizzle={drizzle} drizzleState={drizzleState} />
-              </div>
+              <>
+                <LoginButton />
+                <Dashboard drizzle={drizzle} drizzleState={drizzleState} />
+              </>
             );
           }}
         </DrizzleContext.Consumer>

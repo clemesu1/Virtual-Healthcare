@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import { Grid, Paper, Typography } from '@material-ui/core';
@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-function Dashboard({ drizzle, drizzleState, patientCount }) {
+export default function Home({ drizzle, drizzleState, patientCount }) {
 	const classes = useStyles();
 	const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
@@ -50,5 +50,3 @@ function Dashboard({ drizzle, drizzleState, patientCount }) {
 		</div>
 	)
 }
-
-export default Dashboard

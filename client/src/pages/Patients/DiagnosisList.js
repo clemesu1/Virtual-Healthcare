@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "@material-ui/core";
+import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@material-ui/core";
 import { DataGrid } from "@material-ui/data-grid";
 
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-
-export default function DiagnosisList({ patientID, drizzle, drizzleState }) {
+const DiagnosisList = ({ drizzle, drizzleState, patientID }) => {
+	const { PatientRecord } = drizzleState.contracts;
 	const [dataKey, setDataKey] = useState(null);
-	const { PatientRecord } = drizzleState.contracts
 
 	useEffect(() => {
 		const contract = drizzle.contracts.PatientRecord;
@@ -18,17 +12,19 @@ export default function DiagnosisList({ patientID, drizzle, drizzleState }) {
 			const dataKey = contract.methods["recordCount"].cacheCall(patientID);
 			setDataKey(dataKey);
 		}
-	}, [dataKey, drizzle.contracts.PatientRecord, patientID])
+	}, [dataKey, drizzle.contracts.PatientRecord]);
 
 	const storedData = PatientRecord.recordCount[dataKey];
 	const recordCount = (storedData && storedData.value);
 
-	return <RetrieveRecords
-		recordCount={recordCount}
-		patientID={patientID}
-		drizzle={drizzle}
-		drizzleState={drizzleState}
-	/>
+	return (
+		<RetrieveRecords
+			recordCount={recordCount}
+			patientID={patientID}
+			drizzle={drizzle}
+			drizzleState={drizzleState}
+		/>
+	)
 }
 
 function RetrieveRecords({ recordCount, patientID, drizzle, drizzleState }) {
@@ -102,8 +98,7 @@ function RetrieveRecords({ recordCount, patientID, drizzle, drizzleState }) {
 					setSelectedRecord(thisRow);
 					setOpen(true);
 				}
-				//selectedRecord => {}
-				//records = [ {} ]
+				
 				return (
 					<div>
 						<Button color="primary" onClick={handleClick}>View</Button>
@@ -116,7 +111,7 @@ function RetrieveRecords({ recordCount, patientID, drizzle, drizzleState }) {
 							<DialogTitle id="record-dialog-title">{"Record Content"} - {selectedRecord.title}</DialogTitle>
 							<DialogContent>
 								<DialogContentText id="record-dialog-description">
-									{ records.map(record => record.content)[selectedRecord.id - 1] }
+									{records.map(record => record.content)[selectedRecord.id - 1]}
 								</DialogContentText>
 							</DialogContent>
 							<DialogActions>
@@ -141,9 +136,8 @@ function RetrieveRecords({ recordCount, patientID, drizzle, drizzleState }) {
 				pageSize={5}
 				disableSelectionOnClick
 			/>
-
-
-
 		</div>
 	);
 }
+
+export default DiagnosisList

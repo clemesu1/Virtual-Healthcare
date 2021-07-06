@@ -1,78 +1,67 @@
 import React, { useState, useEffect } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import { Box, Grid, Typography, Button, IconButton, Tooltip } from '@material-ui/core';
+import { Box, IconButton, Tooltip } from '@material-ui/core';
 import { DataGrid, GridToolbar } from '@material-ui/data-grid';
-import AddIcon from '@material-ui/icons/Add';
-import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import { OpenInNew as OpenInNewIcon } from '@material-ui/icons';
+import PatientHeader from './PatientHeader';
+
 import {
 	Switch,
 	Link,
 	Route,
 	useRouteMatch,
 } from "react-router-dom";
-
-import AddPatient from './AddPatient';
-import PatientPage from './PatientPage';
-
-
-const useStyles = makeStyles((theme) => ({
-	button: {
-		borderRadius: '5em',
-		background: '#4264d0',
-		textTransform: 'none',
-	},
-}));
+import PatientInfo from './PatientInfo';
 
 
 function Patients({ drizzle, drizzleState, patientCount }) {
-	let match = useRouteMatch();
-	const classes = useStyles();
 	const { PatientRecord } = drizzleState.contracts;
-
-	const [open, setOpen] = React.useState(false);
+	const match = useRouteMatch();
 	const [selectedPatient, setSelectedPatient] = useState({
 		id: '',
 		name: '',
 		medicare: '',
 	});
 
-	const handleClickOpen = () => {
-		setOpen(true);
-	};
-
-	const handleClose = () => {
-		setOpen(false);
-	};
-
 	return (
-		<React.Fragment>
-			<Switch>
-				<Route exact path={match.path}>
-					<Grid justify="space-between" container>
-						<Grid item>
-							<Typography variant="h5" gutterBottom>
-								Patient List
-							</Typography>
-						</Grid>
-						<Grid item>
-							<Button variant="contained" color="primary" className={classes.button} startIcon={<AddIcon />} onClick={handleClickOpen}>
-								Add Patient
-							</Button>
-						</Grid>
-					</Grid>
-					<PatientTable patientCount={patientCount} />
-					<AddPatient open={open} handleClose={handleClose} drizzle={drizzle} drizzleState={drizzleState} />
-				</Route>
-				<Route exact path={`${match.path}/${selectedPatient.id}`}>
-					<PatientPage id={selectedPatient.id} name={selectedPatient.name} drizzle={drizzle} drizzleState={drizzleState} />
-				</Route>
-
-			</Switch>
-		</React.Fragment>
-	)
+		<Switch>
+			<Route exact path={match.path}>
+				<PatientHeader drizzle={drizzle} drizzleState={drizzleState} />
+				<PatientTable patientCount={patientCount} />
+			</Route>
+			<Route exact path={`${match.path}/${selectedPatient.id}`}>
+				<PatientInfo patientID={selectedPatient.id} patientName={selectedPatient.name} drizzle={drizzle} drizzleState={drizzleState} />
+			</Route>
+		</Switch>
+	);
 
 	function PatientTable({ patientCount }) {
 		const [patients, setPatients] = useState([]);
+
+		useEffect(() => {
+			const contract = drizzle.contracts.PatientRecord;
+
+			let patientList = [];
+
+			if (patientCount) {
+				for (let i = 1;i <= patientCount;i++) {
+					const dataKey = contract.methods["getPatient"].cacheCall(i)
+					const storedData = PatientRecord.getPatient[dataKey];
+					const patient = (storedData && storedData.value);
+					if (patient) {
+						const { 0: patientID, 1: patientJSON } = patient;
+						const patientObject = JSON.parse(patientJSON);
+
+						patientList.push({
+							id: patientID,
+							name: patientObject.name,
+							medicare: patientObject.medicare,
+						});
+						setPatients(patientList);
+					}
+				}
+			}
+
+		}, [patientCount, drizzle.contracts.PatientRecord]);
 
 		const columns = [
 			{
@@ -126,32 +115,6 @@ function Patients({ drizzle, drizzleState, patientCount }) {
 				}
 			},
 		];
-
-		useEffect(() => {
-			const contract = drizzle.contracts.PatientRecord;
-
-			let patientList = [];
-
-			if (patientCount > 0) {
-				for (let i = 1;i <= patientCount;i++) {
-					const dataKey = contract.methods["getPatient"].cacheCall(i)
-					const storedData = PatientRecord.getPatient[dataKey];
-					const patient = (storedData && storedData.value);
-					if (patient) {
-						const { 0: patientID, 1: patientJSON } = patient;
-						const patientObject = JSON.parse(patientJSON);
-
-						patientList.push({
-							id: patientID,
-							name: patientObject.name,
-							medicare: patientObject.medicare,
-						});
-						setPatients(patientList);
-					}
-				}
-			}
-
-		}, [patientCount]);
 
 		return (
 			<Box pt={4}>

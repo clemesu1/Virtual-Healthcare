@@ -1,24 +1,32 @@
 import React, { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import {
-	Container, Avatar, Typography, Grid, TextField, FormControl, Select, MenuItem, InputLabel,
-	Stepper, Step, StepLabel, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
-} from '@material-ui/core';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import PersonOutlineIcon from '@material-ui/icons/PersonOutline';
-import MailOutlinedIcon from '@material-ui/icons/MailOutlined';
-import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
+import { useMediaQuery, Dialog, DialogTitle, DialogContent, Stepper, Step, StepLabel, Typography, Button, Container, Avatar, Grid, TextField, FormControl, InputLabel, Select, MenuItem } from '@material-ui/core';
+import { LockOutlined as LockOutlinedIcon, PersonOutline as PersonOutlineIcon, MailOutlined as MailOutlinedIcon, InfoOutlined as InfoOutlinedIcon } from '@material-ui/icons';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
 import DateFnsUtils from '@date-io/date-fns';
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
 import MuiPhoneInput from 'material-ui-phone-number';
-import './AddPatient.css';
+
 const useStyles = makeStyles((theme) => ({
+	dialogContent: {
+		marginBottom: theme.spacing(3)
+	},
+	stepper: {
+		padding: theme.spacing(3, 0, 5)
+	},
+	stepperButtons: {
+		display: 'flex',
+		justifyContent: 'center'
+	},
+	button: {
+		marginTop: theme.spacing(3),
+		marginLeft: theme.spacing(1)
+	},
 	avatar: {
 		margin: theme.spacing(1),
-		backgroundColor: theme.palette.primary.main,
+		backgroundColor: theme.palette.primary.main
 	},
 	appBar: {
-		position: 'relative',
+		position: 'relative'
 	},
 	layout: {
 		width: 'auto',
@@ -27,39 +35,26 @@ const useStyles = makeStyles((theme) => ({
 		[theme.breakpoints.up(600 + theme.spacing(2) * 2)]: {
 			width: 600,
 			marginLeft: 'auto',
-			marginRight: 'auto',
-		},
+			marginRight: 'auto'
+		}
 	},
 	paper: {
-		marginBottom: theme.spacing(3)
-	},
-	stepper: {
-		padding: theme.spacing(3, 0, 5),
-	},
-	buttons: {
 		display: 'flex',
-		justifyContent: 'center',
+		flexDirection: 'column',
+		alignItems: 'center'
 	},
-	button: {
-		marginTop: theme.spacing(3),
-		marginLeft: theme.spacing(1),
-	},
-	link: {
-		color: theme.palette.primary.main,
-		textDecoration: 'none',
-		'&:hover': {
-			textDecoration: 'underline',
-		},
-		marginTop: theme.spacing(3),
-
-	},
+	form: {
+		width: '100%',
+		marginTop: '3rem'
+	}
 }));
 
-
-function AddPatient({ open, handleClose, drizzle, drizzleState }) {
+const AddPatientDialog = ({ drizzle, drizzleState, open, handleClose }) => {
 	const classes = useStyles();
+	const theme = useTheme();
+	const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 	const [stackId, setStackID] = useState(null);
-	const [activeStep, setActiveStep] = React.useState(0);
+	const [activeStep, setActiveStep] = useState(0);
 	const [dateOfBirth, setDateOfBirth] = useState(new Date());
 	const [state, setState] = useState({
 		email: "",
@@ -79,6 +74,33 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 	});
 	const [phone, setPhone] = useState('');
 	const [errorMessage, setErrorMessage] = useState({});
+
+	const steps = ['Account', 'Personal', 'Contact', 'Review'];
+
+
+	const handleDateChange = (date) => {
+		setDateOfBirth(date);
+	};
+
+	const handlePhoneChange = (phone) => {
+		setPhone(phone);
+	}
+
+	const handleNext = () => {
+		setActiveStep(activeStep + 1);
+
+	};
+
+	const handleBack = () => {
+		setActiveStep(activeStep - 1);
+	};
+
+	const handleChange = (e) => {
+		setState({
+			...state,
+			[e.target.name]: e.target.value
+		});
+	}
 
 	const validate = () => {
 		let temp = { ...errorMessage };
@@ -136,42 +158,23 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 		if (state) return Object.values(temp).every((x) => x === '');
 	}
 
-	function handleChange(e) {
-		setState({
-			...state,
-			[e.target.name]: e.target.value
-		});
-	}
-
-	const handleDateChange = (date) => {
-		setDateOfBirth(date);
-	};
-
-	const handlePhoneChange = (phone) => {
-		setPhone(phone);
-	}
-
-	function handleSubmit(e) {
+	const handleSubmit = (e) => {
+		e.preventDefault();
 		if (validate()) {
-			e.preventDefault();
+			const contract = drizzle.contracts.PatientRecord;
+
 			const email = state.email;
 			const password = state.password;
 			const name = state.firstName + " " + state.lastName;
 			const medicare = state.medicare;
 			const gender = state.gender;
-			const mailAddress = [
-				{
-					streetAddress: state.address,
-					city: state.city,
-					province: state.province,
-					postalCode: state.postalCode,
-					country: state.country
-				}
-			]
+			const streetAddress = state.address;
+			const city = state.city;
+			const province = state.province;
+			const postalCode = state.postalCode;
+			const country = state.country;
 
-			const contract = drizzle.contracts.PatientRecord;
-
-			const patientObject = {
+			const patientInfo = {
 				email: email,
 				password: password,
 				name: name,
@@ -179,226 +182,160 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 				gender: gender,
 				dateOfBirth: dateOfBirth.toLocaleString().split(',')[0],
 				phone: phone,
-				mailAddress: mailAddress
-			};
+				streetAddress: streetAddress,
+				city: city,
+				province: province,
+				postalCode: postalCode,
+				country: country
+			}
 
-			const patientJSON = JSON.stringify(patientObject);
+			const patientJSON = JSON.stringify(patientInfo);
 
-			// let drizzle know we want to call the `createPatient` method with `patientJSON` and `medicare`
 			const stackId = contract.methods["createPatient"].cacheSend(patientJSON, medicare,
 				{ from: drizzleState.accounts[0], gas: 3000000 }
 			);
 
-			// save the `stackId` for later reference
 			setStackID(stackId);
-
-			setState({
-				email: "",
-				password: "",
-				confirmPassword: "",
-				firstName: "",
-				lastName: "",
-				medicare: "",
-				gender: "",
-				dateOfBirth: "",
-				phone: "",
-				address: "",
-				city: "",
-				province: "",
-				postalCode: "",
-				country: "",
-			})
-
-			setPhone(null)
-			setDateOfBirth(null);
 		}
 	}
 
 	function getTxStatus() {
-		// get the transaction states from the drizzle state
 		const { transactions, transactionStack } = drizzleState
 
-		// get the transaction hash using our saved `stackId`
 		const txHash = transactionStack[stackId]
 
-		// if transaction hash does not exist, don't display anything
 		if (!txHash) return null;
 
-		// otherwise, return the transaction status
 		return `Transaction status: ${transactions[txHash] && transactions[txHash].status}`
 	}
 
-	function Review() {
-		return (
-			<div className="paper">
-				<Avatar className={classes.avatar}>
-					<InfoOutlinedIcon />
-				</Avatar>
+	return (
+		<Dialog open={open} onClose={handleClose} fullScreen={fullScreen}>
+			<DialogTitle>Add Patient</DialogTitle>
+			<DialogContent className={classes.dialogContent}>
+				<Stepper
+					activeStep={activeStep}
+					className={classes.stepper}
+					alternativeLabel
+				>
+					{
+						steps.map((label) => (
+							<Step key={label}>
+								<StepLabel>{label}</StepLabel>
+							</Step>
+						))
+					}
+				</Stepper>
 
-				<Typography component="h1" variant="h5">
-					Review Your Information
-				</Typography>
-
-
-				<Container className="form">
-					<Grid container spacing={1}>
-
-						<Grid item xs={12}>
-							<Typography variant="body1">
-								<b>Email:</b> {state.email}
+				<React.Fragment>
+					{activeStep === steps.length ? (
+						<React.Fragment>
+							<Typography variant="h5" gutterBottom>
+								Thank you for registering!
 							</Typography>
-						</Grid>
+						</React.Fragment>
+					) : (
+						<React.Fragment>
+							<form>
+								{getStepContent(activeStep)}
+							</form>
+							<div className={classes.stepperButtons}>
+								{activeStep !== 0 && (
+									<Button className={classes.button} onClick={handleBack}>
+										Back
+									</Button>
+								)}
+								<Button
+									className={classes.button}
+									variant="contained"
+									color="primary"
+									onClick={activeStep === steps.length - 1 ? handleSubmit : handleNext}
+								>
+									{activeStep === steps.length - 1 ? "Submit" : "Next"}
+								</Button>
+							</div>
+						</React.Fragment>
+					)}
+				</React.Fragment>
+			</DialogContent>
 
-						<Grid item xs={12}>
-							<Typography variant="body1">
-								<b>First Name:</b> {state.firstName}
-							</Typography>
-						</Grid>
-
-						<Grid item xs={12}>
-							<Typography variant="body1">
-								<b>Last Name:</b> {state.lastName}
-							</Typography>
-						</Grid>
-
-						<Grid item xs={12}>
-							<Typography variant="body1">
-								<b>Medicare Number:</b> {state.medicare}
-							</Typography>
-						</Grid>
-
-						<Grid item xs={12}>
-							<Typography variant="body1">
-								<b>Gender:</b> {state.gender}
-							</Typography>
-						</Grid>
-
-						<Grid item xs={12}>
-							<Typography variant="body1">
-								<b>Date of Birth:</b> {dateOfBirth.toLocaleString().split(',')[0]}
-							</Typography>
-						</Grid>
-
-						<Grid item xs={12}>
-							<Typography variant="body1">
-								<b>Phone:</b> {phone}
-							</Typography>
-						</Grid>
-
-						<Grid item xs={12}>
-							<Typography variant="body1">
-								<b>Street Address:</b> {state.address}
-							</Typography>
-						</Grid>
-
-						<Grid item xs={12}>
-							<Typography variant="body1">
-								<b>City:</b> {state.city}
-							</Typography>
-						</Grid>
-
-						<Grid item xs={12}>
-							<Typography variant="body1">
-								<b>Province:</b> {state.province}
-							</Typography>
-						</Grid>
-
-						<Grid item xs={12}>
-							<Typography variant="body1">
-								<b>Postal Code:</b> {state.postalCode}
-							</Typography>
-						</Grid>
-
-						<Grid item xs={12}>
-							<Typography variant="body1">
-								<b>Country:</b> {state.country}
-							</Typography>
-						</Grid>
-					</Grid>
-				</Container>
-				<div>{getTxStatus()}</div>
-
-			</div>
-		);
-	}
-
-	const steps = ['Account', 'Personal', 'Contact', 'Review'];
-
+		</Dialog>
+	)
 
 	function getStepContent(step) {
 		switch (step) {
 			case 0:
-				return (<Container component="main" maxWidth="xs">
+				return (
+					<Container component="main" maxWidth="xs">
 
-					<div className="paper">
-						<Avatar className={classes.avatar}>
-							<LockOutlinedIcon />
-						</Avatar>
+						<div className={classes.paper}>
+							<Avatar className={classes.avatar}>
+								<LockOutlinedIcon />
+							</Avatar>
 
-						<Typography component="h1" variant="h5">
-							Account Information
-						</Typography>
+							<Typography component="h1" variant="h5">
+								Account Information
+							</Typography>
 
-						<div className="form">
-							<Grid container spacing={2}>
+							<div className={classes.form}>
+								<Grid container spacing={2}>
 
-								<Grid item xs={12}>
-									<TextField
-										variant="outlined"
-										required
-										fullWidth
-										id="email"
-										label="Email Address"
-										name="email"
-										autoComplete="email"
-										value={state.email}
-										onChange={handleChange}
-										error={!!errorMessage.email}
+									<Grid item xs={12}>
+										<TextField
+											variant="outlined"
+											required
+											fullWidth
+											id="email"
+											label="Email Address"
+											name="email"
+											autoComplete="email"
+											value={state.email}
+											onChange={handleChange}
+											error={!!errorMessage.email}
 
-									/>
+										/>
+									</Grid>
+
+									<Grid item xs={12}>
+										<TextField
+											variant="outlined"
+											required
+											fullWidth
+											type="password"
+											id="password"
+											label="Password"
+											name="password"
+											autoComplete="current-password"
+											value={state.password}
+											onChange={handleChange}
+											error={!!errorMessage.password}
+
+										/>
+									</Grid>
+
+									<Grid item xs={12}>
+										<TextField
+											variant="outlined"
+											required
+											fullWidth
+											type="password"
+											id="confirmPassword"
+											label="Confirm Password"
+											name="confirmPassword"
+											autoComplete="current-password"
+											value={state.confirmPassword}
+											onChange={handleChange}
+											error={!!errorMessage.confirmPassword}
+										/>
+									</Grid>
 								</Grid>
-
-								<Grid item xs={12}>
-									<TextField
-										variant="outlined"
-										required
-										fullWidth
-										type="password"
-										id="password"
-										label="Password"
-										name="password"
-										autoComplete="current-password"
-										value={state.password}
-										onChange={handleChange}
-										error={!!errorMessage.password}
-
-									/>
-								</Grid>
-
-								<Grid item xs={12}>
-									<TextField
-										variant="outlined"
-										required
-										fullWidth
-										type="password"
-										id="confirmPassword"
-										label="Confirm Password"
-										name="confirmPassword"
-										autoComplete="current-password"
-										value={state.confirmPassword}
-										onChange={handleChange}
-										error={!!errorMessage.confirmPassword}
-
-									/>
-								</Grid>
-							</Grid>
+							</div>
 						</div>
-					</div>
-				</Container>);
+					</Container>);
 			case 1:
 				return (<Container component="main" maxWidth="xs">
 
-					<div className="paper">
+					<div className={classes.paper}>
 						<Avatar className={classes.avatar}>
 							<PersonOutlineIcon />
 						</Avatar>
@@ -407,7 +344,7 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 							Personal Information
 						</Typography>
 
-						<div className="form">
+						<div className={classes.form}>
 							<Grid container spacing={2}>
 
 								<Grid item xs={12} sm={6}>
@@ -480,7 +417,7 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 								</Grid>
 
 								<Grid item xs={12} sm={6}>
-									<MuiPickersUtilsProvider utils={DateFnsUtils} fullWidth>
+									<MuiPickersUtilsProvider utils={DateFnsUtils} fullWidth >
 										<KeyboardDatePicker
 											autoOk
 											variant="inline"
@@ -490,10 +427,11 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 											label="Date of Birth"
 											value={dateOfBirth}
 											onChange={handleDateChange}
-											error={!!errorMessage.dateOfBirth}
+											fullWidth
 											KeyboardButtonProps={{
 												'aria-label': 'change date',
 											}}
+											error={!!errorMessage.dateOfBirth}
 										/>
 									</MuiPickersUtilsProvider>
 								</Grid>
@@ -506,7 +444,7 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 				return (
 					<Container component="main" maxWidth="xs">
 
-						<div className="paper">
+						<div className={classes.paper}>
 							<Avatar className={classes.avatar}>
 								<MailOutlinedIcon />
 							</Avatar>
@@ -515,7 +453,7 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 								Contact Information
 							</Typography>
 
-							<div className="form">
+							<div className={classes.form}>
 								<Grid container spacing={2}>
 
 									<Grid item xs={12}>
@@ -605,7 +543,7 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 											autoComplete="shipping country-name"
 											value={state.country}
 											onChange={handleChange}
-
+											error={!!errorMessage.country}
 										/>
 									</Grid>
 								</Grid>
@@ -619,66 +557,99 @@ function AddPatient({ open, handleClose, drizzle, drizzleState }) {
 		}
 	}
 
-	const handleNext = () => {
-		setActiveStep(activeStep + 1);
+	function Review() {
+		return (
+			<div className={classes.paper}>
+				<Avatar className={classes.avatar}>
+					<InfoOutlinedIcon />
+				</Avatar>
 
-	};
+				<Typography component="h1" variant="h5">
+					Review Your Information
+				</Typography>
 
-	const handleBack = () => {
-		setActiveStep(activeStep - 1);
-	};
 
-	return (
-		<Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-			<DialogTitle id="form-dialog-title">Add Patient</DialogTitle>
-			<DialogContent className={classes.paper}>
-				<Stepper
-					activeStep={activeStep}
-					className={classes.stepper}
-					alternativeLabel
-				>
-					{
-						steps.map((label) => (
-							<Step key={label}>
-								<StepLabel>{label}</StepLabel>
-							</Step>
-						))
-					}
-				</Stepper>
+				<Container className={classes.form}>
+					<Grid container spacing={1}>
 
-				<React.Fragment>
-					{activeStep === steps.length ? (
-						<React.Fragment>
-							<Typography variant="h5" gutterBottom>
-								Thank you for registering!
+						<Grid item xs={12}>
+							<Typography variant="body1">
+								<b>Email:</b> {state.email}
 							</Typography>
-						</React.Fragment>
-					) : (
-						<React.Fragment>
-							{getStepContent(activeStep)}
-							<div className={classes.buttons}>
-								{activeStep !== 0 && (
-									<Button onClick={handleBack} className={classes.button}>
-										Back
-									</Button>
-								)}
-								<Button variant="contained"
-									color="primary"
-									onClick={activeStep === steps.length - 1 ? handleSubmit : handleNext}
-									className={classes.button}
-								>
-									{activeStep === steps.length - 1 ? "Submit" : "Next"}
-								</Button>
-							</div>
+						</Grid>
 
-						</React.Fragment>
-					)}
-				</React.Fragment>
+						<Grid item xs={12}>
+							<Typography variant="body1">
+								<b>First Name:</b> {state.firstName}
+							</Typography>
+						</Grid>
 
-			</DialogContent>
+						<Grid item xs={12}>
+							<Typography variant="body1">
+								<b>Last Name:</b> {state.lastName}
+							</Typography>
+						</Grid>
 
-		</Dialog>
-	)
+						<Grid item xs={12}>
+							<Typography variant="body1">
+								<b>Medicare Number:</b> {state.medicare}
+							</Typography>
+						</Grid>
+
+						<Grid item xs={12}>
+							<Typography variant="body1">
+								<b>Gender:</b> {state.gender}
+							</Typography>
+						</Grid>
+
+						<Grid item xs={12}>
+							<Typography variant="body1">
+								<b>Date of Birth:</b> {dateOfBirth.toLocaleString().split(',')[0]}
+							</Typography>
+						</Grid>
+
+						<Grid item xs={12}>
+							<Typography variant="body1">
+								<b>Phone:</b> {phone}
+							</Typography>
+						</Grid>
+
+						<Grid item xs={12}>
+							<Typography variant="body1">
+								<b>Street Address:</b> {state.address}
+							</Typography>
+						</Grid>
+
+						<Grid item xs={12}>
+							<Typography variant="body1">
+								<b>City:</b> {state.city}
+							</Typography>
+						</Grid>
+
+						<Grid item xs={12}>
+							<Typography variant="body1">
+								<b>Province:</b> {state.province}
+							</Typography>
+						</Grid>
+
+						<Grid item xs={12}>
+							<Typography variant="body1">
+								<b>Postal Code:</b> {state.postalCode}
+							</Typography>
+						</Grid>
+
+						<Grid item xs={12}>
+							<Typography variant="body1">
+								<b>Country:</b> {state.country}
+							</Typography>
+						</Grid>
+					</Grid>
+				</Container>
+				<div>{getTxStatus()}</div>
+
+			</div>
+		);
+	}
 }
 
-export default AddPatient
+export default AddPatientDialog
