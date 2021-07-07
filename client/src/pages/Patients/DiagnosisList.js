@@ -12,7 +12,7 @@ const DiagnosisList = ({ drizzle, drizzleState, patientID }) => {
 			const dataKey = contract.methods["recordCount"].cacheCall(patientID);
 			setDataKey(dataKey);
 		}
-	}, [dataKey, drizzle.contracts.PatientRecord]);
+	}, [patientID, dataKey, drizzle.contracts.PatientRecord]);
 
 	const storedData = PatientRecord.recordCount[dataKey];
 	const recordCount = (storedData && storedData.value);
@@ -98,28 +98,11 @@ function RetrieveRecords({ recordCount, patientID, drizzle, drizzleState }) {
 					setSelectedRecord(thisRow);
 					setOpen(true);
 				}
-				
+
 				return (
 					<div>
 						<Button color="primary" onClick={handleClick}>View</Button>
-						<Dialog
-							open={open}
-							onClose={handleClose}
-							aria-labelledby="record-dialog-title"
-							aria-describedby="record-dialog-description"
-						>
-							<DialogTitle id="record-dialog-title">{"Record Content"} - {selectedRecord.title}</DialogTitle>
-							<DialogContent>
-								<DialogContentText id="record-dialog-description">
-									{records.map(record => record.content)[selectedRecord.id - 1]}
-								</DialogContentText>
-							</DialogContent>
-							<DialogActions>
-								<Button onClick={handleClose} color="primary">
-									Close
-								</Button>
-							</DialogActions>
-						</Dialog>
+
 					</div>
 				);
 			}
@@ -128,15 +111,34 @@ function RetrieveRecords({ recordCount, patientID, drizzle, drizzleState }) {
 
 	return (
 		<div style={{ height: 400, width: '100%' }}>
-			{/* recordList[recordID - 1].content */}
-			<DataGrid
-				style={{ width: '640px' }}
-				rows={records}
-				columns={columns}
-				pageSize={5}
-				disableSelectionOnClick
-			/>
+			{records.length !== 0 ?
+				<DataGrid
+					style={{ width: '640px' }}
+					rows={records}
+					columns={columns}
+					pageSize={5}
+					disableSelectionOnClick
+				/> : 'Loading...'}
+			<Dialog
+				open={open}
+				onClose={handleClose}
+				aria-labelledby="record-dialog-title"
+				aria-describedby="record-dialog-description"
+			>
+				<DialogTitle id="record-dialog-title">{"Title"} - {selectedRecord.title}</DialogTitle>
+				<DialogContent>
+					<DialogContentText id="record-dialog-description">
+						{records.map(record => record.content)[selectedRecord.id - 1]}
+					</DialogContentText>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={handleClose} color="primary">
+						Close
+					</Button>
+				</DialogActions>
+			</Dialog>
 		</div>
+
 	);
 }
 

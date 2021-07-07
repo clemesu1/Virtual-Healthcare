@@ -134,7 +134,7 @@ function Patients({ drizzle, drizzleState, patientCount }) {
 							pageSize={5}
 							checkboxSelection
 							disableSelectionOnClick
-						/> : null}
+						/> : ':Loading...'}
 				</div>
 			</Box>
 		)

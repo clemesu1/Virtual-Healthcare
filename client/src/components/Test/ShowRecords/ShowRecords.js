@@ -56,7 +56,7 @@ function ShowRecords({ drizzle, drizzleState }) {
 				</Select>
 			</FormControl>
 			<div className="patient">
-				{showSection ? <GetRecordCount patientID={patientID} drizzle={drizzle} drizzleState={drizzleState} /> : null}
+				{showSection ? <GetRecordCount patientID={patientID} drizzle={drizzle} drizzleState={drizzleState} /> : 'Loading...'}
 			</div>
 		</Container >
 	);

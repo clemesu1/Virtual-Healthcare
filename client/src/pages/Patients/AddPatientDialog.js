@@ -196,6 +196,28 @@ const AddPatientDialog = ({ drizzle, drizzleState, open, handleClose }) => {
 			);
 
 			setStackID(stackId);
+
+			setState({
+				email: "",
+				password: "",
+				confirmPassword: "",
+				firstName: "",
+				lastName: "",
+				medicare: "",
+				gender: "",
+				dateOfBirth: "",
+				phone: "",
+				address: "",
+				city: "",
+				province: "",
+				postalCode: "",
+				country: "",
+			});
+
+			setPhone("");
+			setDateOfBirth(new Date());
+
+			handleClose();
 		}
 	}
 
