@@ -168,7 +168,6 @@ export default function Dashboard({ drizzle, drizzleState }) {
 							<Settings />
 						</Route>
 					</Switch>
-
 				</Container>
 				<Box pt={4}>
 					<Copyright />

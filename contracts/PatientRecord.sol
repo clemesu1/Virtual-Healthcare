@@ -107,11 +107,11 @@ contract PatientRecord {
     /**
      * Returns a patient's record using the patient ID and record ID as the indices.
      *
-     * @param patientIndex the index of the patient whose record is being requested
+     * @param pIndex       the index of the patient whose record is being requested
      * @param recordIndex  the index of the record requested
      * @return             the object of the record requested
      */
-    function getRecord(uint256 patientIndex, uint256 recordIndex)
+    function getRecord(uint256 pIndex, uint256 recordIndex)
         public
         view
         returns (
@@ -120,7 +120,7 @@ contract PatientRecord {
             string memory
         )
     {
-        Patient storage p = patients[patientIndex];
+        Patient storage p = patients[pIndex];
         return (
             p.records[recordIndex].id,
             p.records[recordIndex].title,

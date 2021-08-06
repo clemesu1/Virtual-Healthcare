@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, IconButton, Tooltip } from '@material-ui/core';
-import { DataGrid, GridToolbar } from '@material-ui/data-grid';
+import { IconButton, Tooltip, Table, TableCell, TableRow, TableBody, TableHead } from '@material-ui/core';
+import { GridToolbar } from '@material-ui/data-grid';
 import { OpenInNew as OpenInNewIcon } from '@material-ui/icons';
 import PatientHeader from './PatientHeader';
 
@@ -13,7 +13,7 @@ import {
 import PatientInfo from './PatientInfo';
 
 
-function Patients({ drizzle, drizzleState, patientCount }) {
+function Patients({ drizzle, drizzleState }) {
 	const { PatientRecord } = drizzleState.contracts;
 	const match = useRouteMatch();
 	const [selectedPatient, setSelectedPatient] = useState({
@@ -26,7 +26,7 @@ function Patients({ drizzle, drizzleState, patientCount }) {
 		<Switch>
 			<Route exact path={match.path}>
 				<PatientHeader drizzle={drizzle} drizzleState={drizzleState} />
-				<PatientTable patientCount={patientCount} />
+				<PatientTable />
 			</Route>
 			<Route exact path={`${match.path}/${selectedPatient.id}`}>
 				<PatientInfo patientID={selectedPatient.id} patientName={selectedPatient.name} drizzle={drizzle} drizzleState={drizzleState} />
@@ -34,110 +34,96 @@ function Patients({ drizzle, drizzleState, patientCount }) {
 		</Switch>
 	);
 
-	function PatientTable({ patientCount }) {
-		const [patients, setPatients] = useState([]);
-		const [dataKey, setDataKey] = useState(null);
+	function PatientTable() {
+		// const [patients, setPatients] = useState([]);
+		//
+		//
+		//
+		//
+		//
+		//
+
+		// const [patientCount, setPatientCount] = useState(0);
+		const [dataKeys, setDataKeys] = useState([]);
 
 		useEffect(() => {
-			const contract = drizzle.contracts.PatientRecord;
 
-			let patientList = [];
-
-			if (patientCount) {
+			async function fetchPatients() {
+				const contract = drizzle.contracts.PatientRecord;
+				const patientCount = await contract.methods.patientCount().call();
+				const dataKeys = []
 				for (let i = 1;i <= patientCount;i++) {
-					const dataKey = contract.methods["getPatient"].cacheCall(i)
-					setDataKey(dataKey);
-					const storedData = PatientRecord.getPatient[dataKey];
-					const patient = (storedData && storedData.value);
-					if (patient) {
-						const { 0: patientID, 1: patientJSON } = patient;
-						const patientObject = JSON.parse(patientJSON);
-
-						patientList.push({
-							id: patientID,
-							name: patientObject.name,
-							medicare: patientObject.medicare,
-						});
-						setPatients(patientList);
-					}
+					await dataKeys.push(contract.methods.getPatient.cacheCall(i));
 				}
+
+				setDataKeys(dataKeys)
+
 			}
 
-		}, [dataKey, drizzle.contracts.PatientRecord]);
+			fetchPatients();
 
-		const columns = [
-			{
-				field: 'id',
-				headerName: 'ID',
-				flex: 1
-			},
-			{
-				field: 'name',
-				headerName: 'Name',
-				flex: 1
-			},
-			{
-				field: 'medicare',
-				headerName: 'Medicare Number',
-				flex: 1
-			},
-			{
-				field: "",
-				headerName: "Action",
-				disableClickEventBubbling: true,
-				disableColumnMenu: true,
-				sortable: false,
-				renderCell: (params) => {
-					const handleClick = () => {
-						const api = params.api;
-						const fields = api
-							.getAllColumns()
-							.map((c) => c.field)
-							.filter((c) => c !== "__check__" && !!c);
+		}, [])
 
-						const thisRow = {};
 
-						fields.forEach((item) => {
-							thisRow[item] = params.row[item] || '';
-						})
+		const patientList = dataKeys.map(key =>
+			PatientRecord.getPatient[key] ? PatientRecord.getPatient[key].value : []
+		);
 
-						setSelectedPatient(thisRow);
-					}
-					return (
-						<div>
-							<Link to={`${match.path}/${params.row.id}`}>
-								<Tooltip title="Open" placement="left">
-									<IconButton aria-label="open patient" component="span" onClick={handleClick}>
-										<OpenInNewIcon />
-									</IconButton>
-								</Tooltip >
-							</Link>
-						</div>
-					);
-				}
-			},
-		];
+		const handleClick = (patient) => {
+			setSelectedPatient({
+				id: patient[0],
+				name: JSON.parse(patient[1]).name,
+				medicare: JSON.parse(patient[1]).medicare,
+			})
+		}
+
+
+		const rows = patientList.map(patient => (
+			<TableRow key={patient[0]}>
+				<TableCell>{patient[0]}</TableCell>
+				<TableCell>
+					{JSON.parse(patient[1]).name}
+				</TableCell>
+				<TableCell>
+					{JSON.parse(patient[1]).medicare}
+				</TableCell>
+				<TableCell>
+					<Link to={`${match.path}/${patient[0]}`}>
+						<Tooltip title="Open" placement="left">
+							<IconButton aria-label="open patient" component="span" onClick={() => handleClick(patient)}>
+								<OpenInNewIcon />
+							</IconButton>
+						</Tooltip >
+					</Link>
+				</TableCell>
+
+			</TableRow>
+		));
 
 		return (
-			<Box pt={4}>
-				<div style={{ height: 400, width: '100%' }}>
-					{patients.length !== 0
-						? <DataGrid
-							components={{
-								Toolbar: GridToolbar,
-							}}
-							style={{
-								width: '640px'
-							}}
-							rows={patients}
-							columns={columns}
-							pageSize={5}
-							checkboxSelection
-							disableSelectionOnClick
-						/> : ':Loading...'}
-				</div>
-			</Box>
+			<>
+				{patientList.length === 0 ? 'Loading...' :
+					<Table
+						components={{
+							Toolbar: GridToolbar,
+						}}
+						pageSize={5}						
+					>
+						<TableHead>
+							<TableRow>
+								<TableCell>ID</TableCell>
+								<TableCell>Name</TableCell>
+								<TableCell>Medicare Number</TableCell>
+								<TableCell>Action</TableCell>
+							</TableRow>
+						</TableHead>
+						<TableBody>{rows}</TableBody>
+					</Table>
+				}
+			</>
 		)
+
+
 	}
 }
 

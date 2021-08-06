@@ -21,4 +21,8 @@ module.exports = {
             }
         }
     },
+    mocha: {
+        enableTimeouts: false,
+        before_timeout: 0
+    }
 };

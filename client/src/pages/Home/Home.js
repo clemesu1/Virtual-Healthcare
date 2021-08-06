@@ -24,13 +24,13 @@ export default function Home({ drizzle, drizzleState, patientCount }) {
 		<div>
 
 			<Grid container spacing={3}>
-				{/* Chart */}
+				{/* Welcome message */}
 				<Grid item xs={12}>
 					<Typography variant="h3">
 						Welcome to Blockchain Virtual Healthcare!
 					</Typography>
 				</Grid>
-				{/* Recent Deposits */}
+				{/* Patient Count */}
 				<Grid item xs={12} sm={2}>
 					<Paper className={fixedHeightPaper}>
 						<Typography variant="h6">
@@ -38,14 +38,7 @@ export default function Home({ drizzle, drizzleState, patientCount }) {
 						</Typography>
 					</Paper>
 				</Grid>
-				{/* Recent Orders */}
-				<Grid item xs={12} sm={2}>
-					<Paper className={fixedHeightPaper}>
-						<Typography variant="h6">
-							Record Count:
-						</Typography>
-					</Paper>
-				</Grid>
+
 			</Grid>
 		</div>
 	)

@@ -3,7 +3,7 @@ import { Drizzle, generateStore } from "@drizzle/store";
 import { DrizzleContext } from "@drizzle/react-plugin";
 import options from '../../drizzleOptions'
 import Dashboard from "../Doctor/Dashboard/Dashboard";
-import { BrowserRouter as Router } from "react-router-dom";
+import { HashRouter as Router } from "react-router-dom";
 import LoginButton from "./LoginButton";
 import { useAuth0 } from '@auth0/auth0-react';
 
@@ -19,8 +19,7 @@ function App() {
         <DrizzleContext.Consumer>
           {drizzleContext => {
             const { drizzle, drizzleState, initialized } = drizzleContext;
-
-         
+            
             if (isLoading) {
               return 'Loading Auth0...';
             }
@@ -28,7 +27,6 @@ function App() {
             if (!initialized) {
               return "Initializing Drizzle...";
             }
-      
             
             return (
               <>

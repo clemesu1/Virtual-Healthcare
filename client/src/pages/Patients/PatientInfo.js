@@ -169,7 +169,7 @@ const PatientInfo = ({ patientID, patientName, drizzle, drizzleState }) => {
 							</Grid>
 						</Paper>
 					</Grid>
-					<Grid item xs>
+					<Grid item xs={5}>
 						<Paper className={fixedHeightPaper}>
 							<DiagnosisInfo patientID={patientID} drizzle={drizzle} drizzleState={drizzleState} />
 						</Paper>
